@@ -109,44 +109,17 @@ func (g *Game) PrintGrid(w io.Writer, selected [2]int, reveal bool) {
 	}
 }
 
-func (g *Game) ToggleFlagCell(x, y int) ([]*Cell, error) {
+func (g *Game) ToggleFlag(x, y int) ([]*Cell, error) {
 	if err := g.validateCoords(x, y); err != nil {
 		return []*Cell{}, err
 	}
 
 	cell := g.Grid[x][y]
-	if cell.Revealed {
-		return []*Cell{}, errors.New("cannot flag a revealed cell")
-	}
-	cell.ToggleFlag()
+	err := cell.ToggleFlag()
 
-	g.refreshStatus()
+	g.refreshState()
 
-	return []*Cell{cell}, nil
-}
-
-func (g *Game) FlagCell(x, y int) ([]*Cell, error) {
-	if err := g.validateCoords(x, y); err != nil {
-		return []*Cell{}, err
-	}
-	cell := g.Grid[x][y]
-	cell.Flag()
-
-	g.refreshStatus()
-
-	return []*Cell{cell}, nil
-}
-
-func (g *Game) UnflagCell(x, y int) ([]*Cell, error) {
-	if err := g.validateCoords(x, y); err != nil {
-		return []*Cell{}, err
-	}
-	cell := g.Grid[x][y]
-	cell.Unflag()
-
-	g.refreshStatus()
-
-	return []*Cell{cell}, nil
+	return []*Cell{cell}, err
 }
 
 func (g *Game) RevealCell(x, y int) ([]*Cell, error) {
@@ -158,14 +131,14 @@ func (g *Game) RevealCell(x, y int) ([]*Cell, error) {
 	// Mine: Game Over
 	if cell.Type == CellTypeMine {
 		cell.Reveal()
-		g.refreshStatus()
+		g.refreshState()
 		return []*Cell{cell}, nil
 	}
 
 	// Cell with adj mines
 	if cell.AdjMines > 0 {
 		cell.Reveal()
-		g.refreshStatus()
+		g.refreshState()
 		return []*Cell{cell}, nil
 	}
 
@@ -190,7 +163,7 @@ func (g *Game) RevealCell(x, y int) ([]*Cell, error) {
 		}
 	}
 
-	g.refreshStatus()
+	g.refreshState()
 
 	return revealedCells, nil
 }
@@ -200,6 +173,9 @@ func (g *Game) RevealAdj(x, y int) ([]*Cell, error) {
 		return []*Cell{}, err
 	}
 	cell := g.Grid[x][y]
+	if !cell.Revealed {
+		return []*Cell{}, errors.New("cannot reveal adjacent cells unless the cell itself is revealed")
+	}
 
 	height, width := g.Height, g.Width
 	revealedCells := []*Cell{}
@@ -215,7 +191,7 @@ func (g *Game) RevealAdj(x, y int) ([]*Cell, error) {
 			discovered[adj] = true
 		}
 	}
-	if !cell.Revealed || numAdjFlagged != cell.AdjMines {
+	if numAdjFlagged < cell.AdjMines {
 		return []*Cell{}, errors.New("cannot reveal adjacent cells unless all adjacent mines have been flagged")
 	}
 
@@ -233,12 +209,12 @@ func (g *Game) RevealAdj(x, y int) ([]*Cell, error) {
 		}
 	}
 
-	g.refreshStatus()
+	g.refreshState()
 
 	return revealedCells, nil
 }
 
-func (g *Game) refreshStatus() {
+func (g *Game) refreshState() {
 	totalCells := g.Height * g.Width
 	totalFlagged := 0
 	totalRevealed := 0

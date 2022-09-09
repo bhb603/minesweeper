@@ -54,7 +54,7 @@ func (c *CLIGame) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			_, err = c.game.RevealAdj(c.cursor[0], c.cursor[1])
 		case "f":
-			_, err = c.game.ToggleFlagCell(c.cursor[0], c.cursor[1])
+			_, err = c.game.ToggleFlag(c.cursor[0], c.cursor[1])
 		}
 	}
 

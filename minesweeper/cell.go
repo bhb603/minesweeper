@@ -1,6 +1,7 @@
 package minesweeper
 
 import (
+	"errors"
 	"strconv"
 )
 
@@ -28,10 +29,17 @@ func NewCell(cellType CellType, x, y int) (*Cell, error) {
 	}, nil
 }
 
-func (c *Cell) Reveal()     { c.Revealed = true }
-func (c *Cell) Flag()       { c.Flagged = true }
-func (c *Cell) Unflag()     { c.Flagged = false }
-func (c *Cell) ToggleFlag() { c.Flagged = !c.Flagged }
+func (c *Cell) Reveal() {
+	c.Flagged = false
+	c.Revealed = true
+}
+func (c *Cell) ToggleFlag() error {
+	if c.Revealed {
+		return errors.New("cannot flag a revealed cell")
+	}
+	c.Flagged = !c.Flagged
+	return nil
+}
 
 func (c *Cell) AdjacentCells(grid [][]*Cell) []*Cell {
 	adj := []*Cell{}
