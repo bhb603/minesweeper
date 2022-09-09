@@ -1,6 +1,9 @@
 package minesweeper
 
-import "testing"
+import (
+	"strconv"
+	"testing"
+)
 
 func TestNewCell(t *testing.T) {
 	x, y := 3, 19
@@ -37,22 +40,16 @@ func TestRevealed(t *testing.T) {
 
 func TestString(t *testing.T) {
 	mineCell, _ := NewCell(CellTypeMine, 0, 0)
-	if s := mineCell.String(); s != "*" {
+	if s := mineCell.String(); s != "💣" {
 		t.Errorf("expected %q, got %q", "*", s)
 	}
 
 	cell, _ := NewCell(CellTypeAdjacent, 0, 0)
-	if s := cell.String(); s != " " {
-		t.Errorf("expected %q, got %q", " ", s)
-	}
-
-	cell.AdjMines++
-	if s := cell.String(); s != "1" {
-		t.Errorf("expected %q, got %q", "1", s)
-	}
-
-	cell.AdjMines++
-	if s := cell.String(); s != "2" {
-		t.Errorf("expected %q, got %q", "2", s)
+	for n := 0; n <= 8; n++ {
+		cell.AdjMines = n
+		strVal := strconv.Itoa(n)
+		if s := cell.String(); s != strVal {
+			t.Errorf("expected %q, got %q", strVal, s)
+		}
 	}
 }

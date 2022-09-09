@@ -3,6 +3,7 @@ package minesweeper
 import (
 	"errors"
 	"fmt"
+	"io"
 	"math/rand"
 	"time"
 
@@ -81,35 +82,47 @@ func (g *Game) seedMines() {
 	}
 }
 
-func (g *Game) Print(reveal bool) {
+func (g *Game) PrintHeader(w io.Writer) {
 	height, width := g.Height, g.Width
+	fmt.Fprintf(w, "Game %s\n", g.ID)
+	fmt.Fprintf(w, "%dx%d, %d/%d mines\n", height, width, g.NumFlagged, g.NumMines)
+	fmt.Fprintln(w, "")
+}
 
-	fmt.Printf("Game %s\n", g.ID)
-	fmt.Printf("%dx%d, %d mines\n", height, width, g.NumMines)
-	fmt.Printf("%d/%d mines found", g.NumFlagged, g.NumMines)
-	fmt.Println("")
-
-	fmt.Print("    ")
-	for j := 0; j < width; j++ {
-		fmt.Printf("%3d", j)
-	}
-	fmt.Println("")
-
+func (g *Game) PrintGrid(w io.Writer, selected [2]int, reveal bool) {
+	height, width := g.Height, g.Width
 	for i := 0; i < height; i++ {
-		fmt.Printf("%3d ", i)
 		for j := 0; j < width; j++ {
-
 			cell := g.Grid[i][j]
-			if reveal || cell.Revealed {
-				fmt.Printf("[%s]", cell)
-			} else if cell.Flagged {
-				fmt.Printf("[⚑]")
-			} else {
-				fmt.Printf("[ ]")
+			pre, post, val := " ", " ", " "
+			if i == selected[0] && j == selected[1] {
+				pre, post = "[", "]"
 			}
+			if reveal || cell.Revealed {
+				val = cell.String()
+			} else if cell.Flagged {
+				val = "⚑"
+			}
+			fmt.Fprintf(w, "%s%s%s", pre, val, post)
 		}
-		fmt.Println("")
+		fmt.Fprintln(w, "")
 	}
+}
+
+func (g *Game) ToggleFlagCell(x, y int) ([]*Cell, error) {
+	if err := g.validateCoords(x, y); err != nil {
+		return []*Cell{}, err
+	}
+
+	cell := g.Grid[x][y]
+	if cell.Revealed {
+		return []*Cell{}, errors.New("cannot flag a revealed cell")
+	}
+	cell.ToggleFlag()
+
+	g.refreshStatus()
+
+	return []*Cell{cell}, nil
 }
 
 func (g *Game) FlagCell(x, y int) ([]*Cell, error) {
@@ -192,11 +205,18 @@ func (g *Game) RevealAdj(x, y int) ([]*Cell, error) {
 	revealedCells := []*Cell{}
 	discovered := make(map[*Cell]bool)
 	queue := make(chan *Cell, height*width)
+	numAdjFlagged := 0
 	for _, adj := range cell.AdjacentCells(g.Grid) {
+		if adj.Flagged {
+			numAdjFlagged++
+		}
 		if !adj.Revealed && !adj.Flagged {
 			queue <- adj
 			discovered[adj] = true
 		}
+	}
+	if !cell.Revealed || numAdjFlagged != cell.AdjMines {
+		return []*Cell{}, errors.New("cannot reveal adjacent cells unless all adjacent mines have been flagged")
 	}
 
 	for len(queue) > 0 {

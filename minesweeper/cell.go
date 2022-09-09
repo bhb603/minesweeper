@@ -28,9 +28,10 @@ func NewCell(cellType CellType, x, y int) (*Cell, error) {
 	}, nil
 }
 
-func (c *Cell) Reveal() { c.Revealed = true }
-func (c *Cell) Flag()   { c.Flagged = true }
-func (c *Cell) Unflag() { c.Flagged = false }
+func (c *Cell) Reveal()     { c.Revealed = true }
+func (c *Cell) Flag()       { c.Flagged = true }
+func (c *Cell) Unflag()     { c.Flagged = false }
+func (c *Cell) ToggleFlag() { c.Flagged = !c.Flagged }
 
 func (c *Cell) AdjacentCells(grid [][]*Cell) []*Cell {
 	adj := []*Cell{}
