@@ -85,7 +85,7 @@ func (g *Game) seedMines() {
 func (g *Game) PrintHeader(w io.Writer) {
 	height, width := g.Height, g.Width
 	fmt.Fprintf(w, "Game %s\n", g.ID)
-	fmt.Fprintf(w, "%dx%d, %d/%d mines\n", height, width, g.NumFlagged, g.NumMines)
+	fmt.Fprintf(w, "%dx%d, %d mines, %d flagged\n", height, width, g.NumMines, g.NumFlagged)
 	fmt.Fprintln(w, "")
 }
 
@@ -107,6 +107,14 @@ func (g *Game) PrintGrid(w io.Writer, selected [2]int, reveal bool) {
 		}
 		fmt.Fprintln(w, "")
 	}
+}
+
+func (g *Game) GetCell(x, y int) (*Cell, error) {
+	if err := g.validateCoords(x, y); err != nil {
+		return nil, err
+	}
+
+	return g.Grid[x][y], nil
 }
 
 func (g *Game) ToggleFlag(x, y int) ([]*Cell, error) {
