@@ -2,8 +2,6 @@ package minesweeper
 
 import (
 	"errors"
-	"fmt"
-	"io"
 	"math/rand"
 	"time"
 
@@ -79,33 +77,6 @@ func (g *Game) seedMines() {
 				}
 			}
 		}
-	}
-}
-
-func (g *Game) PrintHeader(w io.Writer) {
-	height, width := g.Height, g.Width
-	fmt.Fprintf(w, "Game %s\n", g.ID)
-	fmt.Fprintf(w, "%dx%d, %d mines, %d flagged\n", height, width, g.NumMines, g.NumFlagged)
-	fmt.Fprintln(w, "")
-}
-
-func (g *Game) PrintGrid(w io.Writer, selected [2]int, reveal bool) {
-	height, width := g.Height, g.Width
-	for i := 0; i < height; i++ {
-		for j := 0; j < width; j++ {
-			cell := g.Grid[i][j]
-			pre, post, val := " ", " ", " "
-			if i == selected[0] && j == selected[1] {
-				pre, post = "[", "]"
-			}
-			if reveal || cell.Revealed {
-				val = cell.String()
-			} else if cell.Flagged {
-				val = "⚑"
-			}
-			fmt.Fprintf(w, "%s%s%s", pre, val, post)
-		}
-		fmt.Fprintln(w, "")
 	}
 }
 
