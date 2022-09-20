@@ -1,4 +1,4 @@
-package cli
+package main
 
 import (
 	"github.com/charmbracelet/bubbles/key"
@@ -35,7 +35,7 @@ var (
 	)
 	RevealKeyBinding = key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "reveal cell OR reveal adjacent if all adjacent mines are flagged"),
+		key.WithHelp("enter", "reveal cell; reveal adjacent if all adj mines flagged"),
 	)
 	ToggleFlagKeyBinding = key.NewBinding(
 		key.WithKeys("f"),

@@ -8,10 +8,16 @@ import (
 	"github.com/google/uuid"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+type GameStatus int
+
 const (
-	GameStatusLost       = "lost"
-	GameStatusWon        = "won"
-	GameStatusInProgress = "in_progress"
+	GameStatusLost GameStatus = iota
+	GameStatusWon
+	GameStatusInProgress
 )
 
 var (
@@ -23,7 +29,7 @@ var (
 type Game struct {
 	ID         string `json:"id"`
 	Grid       [][]*Cell
-	Status     string
+	Status     GameStatus
 	NumFlagged int
 	GameConfig
 }
@@ -56,20 +62,18 @@ func NewGame(config GameConfig) *Game {
 }
 
 func (g *Game) seedMines() {
-	rand.Seed(time.Now().UnixNano())
 	height, width := g.Height, g.Width
-
-	mines := make([]int, height*width)
+	mineLocs := make([]bool, height*width)
 	for n := 0; n < g.NumMines; n++ {
-		mines[n] = 1
+		mineLocs[n] = true
 	}
 
-	rand.Shuffle(len(mines), func(i, j int) { mines[i], mines[j] = mines[j], mines[i] })
+	rand.Shuffle(len(mineLocs), func(i, j int) { mineLocs[i], mineLocs[j] = mineLocs[j], mineLocs[i] })
 
 	for i := 0; i < height; i++ {
 		for j := 0; j < width; j++ {
 			cellNumber := i*height + j
-			if mines[cellNumber] == 1 {
+			if mineLocs[cellNumber] {
 				mineCell := g.Grid[i][j]
 				mineCell.Type = CellTypeMine
 				for _, adj := range mineCell.AdjacentCells(g.Grid) {

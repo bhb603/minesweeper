@@ -1,11 +1,11 @@
-package cli
+package main
 
 import (
 	"bytes"
 	"fmt"
 	"io"
 
-	"github.com/bhb603/minesweeper/minesweeper"
+	"github.com/bhb603/minesweeper"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
