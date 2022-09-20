@@ -5,11 +5,11 @@ import (
 	"strconv"
 )
 
-type CellType string
+type CellType int
 
 const (
-	CellTypeMine     CellType = "mine"
-	CellTypeAdjacent CellType = "adjacent"
+	CellTypeMine CellType = iota
+	CellTypeAdjacent
 )
 
 type Cell struct {
