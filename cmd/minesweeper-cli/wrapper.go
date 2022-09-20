@@ -56,5 +56,5 @@ func (m *WrapperModel) View() string {
 }
 
 func (m *WrapperModel) printTitle(w io.Writer) {
-	fmt.Fprintf(w, "Minesweeper\n\n")
+	fmt.Fprintf(w, "Minesweeper [%s]\n\n", version)
 }
