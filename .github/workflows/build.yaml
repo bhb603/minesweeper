@@ -1,9 +1,9 @@
 name: build
 
 on:
-  branches:
-    - main
   push:
+    branches:
+      - 'main'
     tags:
       - 'v*'
 
