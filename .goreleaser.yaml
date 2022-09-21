@@ -1,4 +1,5 @@
 # Make sure to check the documentation at https://goreleaser.com
+project_name: minesweeper
 builds:
   - id: minesweeper-cli
     main: ./cmd/minesweeper-cli
@@ -9,6 +10,12 @@ builds:
       - linux
       - windows
       - darwin
+dockers:
+  - id: minesweeper-cli
+    image_templates:
+      - ghcr.io/bhb603/minesweeper-cli:latest
+      - ghcr.io/bhb603/minesweeper-cli:{{ .Tag }}
+
 archives:
   - replacements:
       darwin: Darwin

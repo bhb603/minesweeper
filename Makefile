@@ -5,8 +5,14 @@ test:
 
 .PHONY: release-snapshot
 build:
-	@goreleaser build --single-target --snapshot --rm-dist
+	@goreleaser build \
+		--snapshot \
+		--rm-dist \
+		--single-target
 
 .PHONY: release
 release:
-	@goreleaser release --rm-dist --skip-publish
+	@goreleaser release \
+		--snapshot \
+		--rm-dist \
+		--skip-publish
